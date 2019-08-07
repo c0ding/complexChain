@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	targetBit = 20
+	targetBit = 16
 )
 
 type Pow struct {

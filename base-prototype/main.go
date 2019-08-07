@@ -16,6 +16,8 @@ func main() {
 
 	fmt.Println(blockchain)
 	fmt.Println(blockchain.Blocks)
+	fmt.Println(currenBlock.Serialize())
+	fmt.Println(currenBlock.DeSerialize(currenBlock.Serialize()))
 
 }
 
