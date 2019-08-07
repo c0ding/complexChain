@@ -1,30 +1,76 @@
 package blockchain
 
+import (
+	"bytes"
+	"crypto/sha256"
+	"fmt"
+	"github.com/c0ding/complexChain/base-prototype/common"
+	"math/big"
+)
+
+const (
+	targetBit = 20
+)
+
 type Pow struct {
-	Block *Block
+	Block  *Block
+	target *big.Int
 }
 
 func NewPow(block *Block) *Pow {
-	return &Pow{Block: block}
+	target := big.NewInt(1)
+	target = target.Lsh(target, 256-targetBit)
+
+	return &Pow{Block: block, target: target}
+}
+
+func (p *Pow) prepareDate(nonce int) []byte {
+	data := bytes.Join(
+		[][]byte{
+			p.Block.PreBlockHash,
+			p.Block.Data,
+			common.Int2Bytes(int64(p.Block.Height)),
+			common.Timestamp2Bytes(p.Block.TimeStamp),
+			common.Int2Bytes(int64(nonce)),
+			common.Int2Bytes(int64(targetBit)),
+		},
+		[]byte{},
+	)
+
+	return data
 }
 
 func (p *Pow) Run() ([]byte, int64) {
-	return nil, 0
+
+	var (
+		nonce   int
+		hashInt big.Int
+		hash    [32]byte
+	)
+
+	nonce = 0
+	for {
+		dataBytes := p.prepareDate(nonce)
+		hash = sha256.Sum256(dataBytes)
+		fmt.Printf("\r%x", hash)
+		hashInt.SetBytes(hash[:])
+		if p.target.Cmp(&hashInt) == 1 {
+			break
+		}
+		nonce = nonce + 1
+	}
+	return hash[:], int64(nonce)
 }
 
-//// 所有字段统一转化为字节数组，在进行hash
-//// 封装一个工具方法
-//func (b *Block) SetHash() {
-//	var (
-//		height     []byte
-//		time       []byte
-//		blockBytes []byte
-//		hash       [32]byte
-//	)
-//
-//	height = common.Int2Bytes(b.Height)
-//	time = common.Timestamp2Bytes(b.TimeStamp)
-//	blockBytes = bytes.Join([][]byte{height, b.PreBlockHash, b.Data, time}, []byte{})
-//	hash = sha256.Sum256(blockBytes)
-//	b.Hash = hash[:]
-//}
+func (p *Pow) IsValid() bool {
+	var (
+		hashInt big.Int
+	)
+
+	hashInt.SetBytes(p.Block.Hash)
+
+	if p.target.Cmp(&hashInt) == 1 {
+		return true
+	}
+	return false
+}
