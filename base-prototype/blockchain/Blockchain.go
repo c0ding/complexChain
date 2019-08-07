@@ -12,3 +12,12 @@ func NewBlockchainWithGenesisBlock() *Blockchain {
 	return &Blockchain{Blocks: []*Block{genesisBlock}}
 
 }
+
+func (b *Blockchain) AddBlock(data string, height int64, preBlockHash []byte) {
+	var (
+		block *Block
+	)
+	block = NewBlock(data, height, preBlockHash)
+	b.Blocks = append(b.Blocks, block)
+
+}
