@@ -38,10 +38,12 @@ func NewBlock(data string, height int64, preBlockHash []byte) *Block {
 	return block
 
 }
+func NewGenesisBlock(data string) *Block {
+	return NewBlock(data, 1, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
 
 // 所有字段统一转化为字节数组，在进行hash
 // 封装一个工具方法
-
 func (b *Block) SetHash() {
 	var (
 		height     []byte
