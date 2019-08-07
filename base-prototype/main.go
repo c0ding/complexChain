@@ -2,15 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/c0ding/complexChain/base-prototype/block"
+	"github.com/c0ding/complexChain/base-prototype/blockchain"
 )
 
 func main() {
 	var (
-		b *block.Block
+		block             *blockchain.Block
+		genesisBlockchain *blockchain.Blockchain
 	)
 
-	b = block.NewGenesisBlock("aaaa")
+	block = blockchain.NewGenesisBlock("aaaa")
 
-	fmt.Println(b)
+	fmt.Println(block)
+	fmt.Println("---------")
+	genesisBlockchain = blockchain.NewBlockchainWithGenesisBlock()
+	fmt.Println(genesisBlockchain)
+	fmt.Println(genesisBlockchain.Blocks)
+	fmt.Println(genesisBlockchain.Blocks[0])
 }
