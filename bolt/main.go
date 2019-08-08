@@ -17,6 +17,9 @@ const bucketname = "bucket01"
 func main() {
 	blockchain := BLC.NewBlockchainWithGenesisBlock()
 	defer blockchain.DB.Close()
+
+	blockchain.AddBlock("Send 200RMB To changjingkong")
+
 }
 
 func usageOpen() {
