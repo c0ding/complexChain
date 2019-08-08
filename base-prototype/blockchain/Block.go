@@ -67,7 +67,7 @@ func (b *Block) Serialize() []byte {
 	return result.Bytes()
 }
 
-func (b *Block) DeSerialize(blockBytes []byte) *Block {
+func DeSerialize(blockBytes []byte) *Block {
 
 	var (
 		block   Block
