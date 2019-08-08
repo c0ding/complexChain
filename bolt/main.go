@@ -19,6 +19,12 @@ func main() {
 	defer blockchain.DB.Close()
 
 	blockchain.AddBlock("Send 200RMB To changjingkong")
+	blockchain.AddBlock("Send 200RMB To changjingkong")
+	blockchain.AddBlock("Send 3200RMB To changjingkong")
+	blockchain.AddBlock("Send 4200RMB To changjingkong")
+	blockchain.AddBlock("Send 2100RMB To changjingkong")
+
+	blockchain.Printchain()
 
 }
 
