@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/c0ding/complexChain/cli-cobra/imp"
 
 	"github.com/spf13/cobra"
 )
@@ -33,6 +34,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("addblock called")
+
+		imp.AddDada2Block("send 100 to me")
 	},
 }
 
