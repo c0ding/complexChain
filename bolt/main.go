@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/boltdb/bolt"
+	BLC "github.com/c0ding/complexChain/base-prototype/blockchain"
 	"log"
 )
 
@@ -14,9 +15,17 @@ var (
 const bucketname = "bucket01"
 
 func main() {
-	usageOpen()
-	usageUpdateDB()
-	usageViewDB()
+	blockchain := BLC.NewBlockchainWithGenesisBlock()
+	defer blockchain.DB.Close()
+
+	blockchain.AddBlock("Send 200RMB To changjingkong")
+	blockchain.AddBlock("Send 200RMB To changjingkong")
+	blockchain.AddBlock("Send 3200RMB To changjingkong")
+	blockchain.AddBlock("Send 4200RMB To changjingkong")
+	blockchain.AddBlock("Send 2100RMB To changjingkong")
+
+	blockchain.Printchain()
+
 }
 
 func usageOpen() {
@@ -52,6 +61,27 @@ func usageUpdateDB() {
 	}
 }
 
+func usagePutData() {
+	if err = db.Update(func(tx *bolt.Tx) error {
+		var (
+			err    error
+			bucket *bolt.Bucket
+		)
+
+		if bucket = tx.Bucket([]byte(bucketname)); bucket == nil {
+			return fmt.Errorf("打开表失败%s", err)
+		}
+
+		if err = bucket.Put([]byte("l"), []byte("给你 100 BTC")); err != nil {
+			return fmt.Errorf("写入数据失败%s", err)
+		}
+
+		return nil
+	}); err != nil {
+		log.Panic(err)
+	}
+}
+
 func usageViewDB() {
 
 	if err = db.View(func(tx *bolt.Tx) error {
@@ -64,7 +94,11 @@ func usageViewDB() {
 		}
 
 		result = bucket.Get([]byte("l"))
+
 		fmt.Println(string(result))
+
+		block := BLC.DeSerialize(result)
+		fmt.Printf("%v\n", block)
 
 		return nil
 	}); err != nil {
