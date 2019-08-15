@@ -51,7 +51,7 @@ func (b *Blockchain) Printchain() {
 
 		fmt.Printf("Height：%d\n", block.Height)
 		fmt.Printf("PrevBlockHash：%x\n", block.PreBlockHash)
-		fmt.Printf("Data：%s\n", block.Data)
+		fmt.Printf("Data：%s\n", block.Txs)
 		fmt.Printf("Timestamp：%s\n", time.Unix(block.TimeStamp, 0).Format("2006-01-02 03:04:05 PM"))
 		fmt.Printf("Hash：%x\n", block.Hash)
 		fmt.Printf("Nonce：%d\n", block.Nonce)
@@ -79,7 +79,7 @@ func setG_Blockchain(bc *Blockchain) {
 	G_Blockchain = bc
 }
 
-func NewBlockchainWithGenesisBlock(data string) {
+func NewBlockchainWithGenesisBlock(txs []*Transaction) {
 	var (
 		db        *bolt.DB
 		err       error
@@ -101,7 +101,7 @@ func NewBlockchainWithGenesisBlock(data string) {
 		var (
 			bucket       *bolt.Bucket
 			err          error
-			genesisBlock = NewGenesisBlock(data)
+			genesisBlock = NewGenesisBlock(txs)
 		)
 
 		if bucket = tx.Bucket([]byte(blockTableName)); bucket == nil {
@@ -128,7 +128,7 @@ func NewBlockchainWithGenesisBlock(data string) {
 	setG_Blockchain(&Blockchain{blockHash, db})
 }
 
-func (b *Blockchain) AddBlock(data string) {
+func (b *Blockchain) AddBlock(txs []*Transaction) {
 
 	if DBExists() == false {
 		log.Println("创世区块不存在，先创建创世区块")
@@ -159,7 +159,7 @@ func (b *Blockchain) AddBlock(data string) {
 		blockBytes = bucket.Get(b.Tip)
 
 		block = DeSerialize(blockBytes)
-		newBlock = NewBlock(data, block.Height+1, block.Hash)
+		newBlock = NewBlock(txs, block.Height+1, block.Hash)
 
 		if err = bucket.Put(newBlock.Hash, newBlock.Serialize()); err != nil {
 			log.Panic(err)

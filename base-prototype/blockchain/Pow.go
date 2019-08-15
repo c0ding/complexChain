@@ -28,7 +28,7 @@ func (p *Pow) prepareDate(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			p.Block.PreBlockHash,
-			p.Block.Data,
+			p.Block.HashTransactions(),
 			common.Int2Bytes(int64(p.Block.Height)),
 			common.Timestamp2Bytes(p.Block.TimeStamp),
 			common.Int2Bytes(int64(nonce)),

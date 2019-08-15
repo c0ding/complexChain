@@ -30,11 +30,13 @@ var genesisCmd = &cobra.Command{
 	Short: "创世区块",
 	Long:  `在没有创世区块时，创建创世区块.默认值：0000`,
 	Run: func(cmd *cobra.Command, args []string) {
-		imp.CreateGenesis(geneData)
+		imp.CreateGenesis(txs)
 	},
 }
 
 func init() {
+
+	txs = nil
 	genesisCmd.Flags().StringVar(&geneData, "genedata", "0000", "创建创世区块")
 	rootCmd.AddCommand(genesisCmd)
 

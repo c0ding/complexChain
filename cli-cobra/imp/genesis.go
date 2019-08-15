@@ -4,6 +4,6 @@ import (
 	BLC "github.com/c0ding/complexChain/base-prototype/blockchain"
 )
 
-func CreateGenesis(data string) {
-	BLC.NewBlockchainWithGenesisBlock(data)
+func CreateGenesis(txs []*BLC.Transaction) {
+	BLC.NewBlockchainWithGenesisBlock(txs)
 }
