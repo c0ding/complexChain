@@ -47,8 +47,8 @@ func (p *Pow) Run() ([]byte, int64) {
 		hashInt big.Int
 		hash    [32]byte
 	)
-
 	nonce = 0
+	fmt.Println()
 	for {
 		dataBytes := p.prepareDate(nonce)
 		hash = sha256.Sum256(dataBytes)

@@ -3,6 +3,7 @@ package blockchain
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"time"
 )
@@ -45,6 +46,7 @@ func NewBlock(data string, height int64, preBlockHash []byte) *Block {
 	hash, nonce = pow.Run()
 	block.Hash = hash[:]
 	block.Nonce = nonce
+	fmt.Println()
 	return block
 }
 
@@ -74,10 +76,11 @@ func DeSerialize(blockBytes []byte) *Block {
 		decoder *gob.Decoder
 		err     error
 	)
-
 	decoder = gob.NewDecoder(bytes.NewReader(blockBytes))
 	if err = decoder.Decode(&block); err != nil {
+
 		log.Panic(err)
+
 	}
 	return &block
 }
