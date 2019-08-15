@@ -13,24 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package cmd
 
 import (
-	"github.com/c0ding/complexChain/cli-cobra/cmd"
-	//BLC "github.com/c0ding/complexChain/base-prototype/blockchain"
+	"github.com/c0ding/complexChain/cli-cobra/imp"
+	"github.com/spf13/cobra"
 )
 
-func main() {
+var (
+	geneData string
+)
 
-	//var (
-	//	blockchain *BLC.Blockchain
-	//)
-	//
-	//if blockchain == nil {
-	//	blockchain = BLC.NewBlockchainWithGenesisBlock()
-	//}
-	//
-	//defer blockchain.DB.Close()
-	cmd.Execute()
+// genesisCmd represents the genesis command
+var genesisCmd = &cobra.Command{
+	Use:   "genesis",
+	Short: "创世区块",
+	Long:  `在没有创世区块时，创建创世区块.默认值：0000`,
+	Run: func(cmd *cobra.Command, args []string) {
+		imp.CreateGenesis(geneData)
+	},
+}
+
+func init() {
+	genesisCmd.Flags().StringVar(&geneData, "genedata", "0000", "创建创世区块")
+	rootCmd.AddCommand(genesisCmd)
 
 }

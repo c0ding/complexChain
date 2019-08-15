@@ -4,7 +4,6 @@ import (
 	BLC "github.com/c0ding/complexChain/base-prototype/blockchain"
 )
 
-func AddDada2Block(data string) {
-	BLC.BlockchainObject()
-	BLC.G_Blockchain.AddBlock(data)
+func CreateGenesis(data string) {
+	BLC.NewBlockchainWithGenesisBlock(data)
 }
