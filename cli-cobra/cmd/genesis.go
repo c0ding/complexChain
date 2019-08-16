@@ -18,10 +18,11 @@ package cmd
 import (
 	"github.com/c0ding/complexChain/cli-cobra/imp"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
-	geneData string
+	address string
 )
 
 // genesisCmd represents the genesis command
@@ -30,14 +31,19 @@ var genesisCmd = &cobra.Command{
 	Short: "创世区块",
 	Long:  `在没有创世区块时，创建创世区块.默认值：0000`,
 	Run: func(cmd *cobra.Command, args []string) {
-		imp.CreateGenesis(txs)
+		if len(address)==0 {
+			cmd.Help()
+			os.Exit(1)
+		}
+
+		imp.CreateGenesis(address)
 	},
 }
 
 func init() {
 
-	txs = nil
-	genesisCmd.Flags().StringVar(&geneData, "genedata", "0000", "创建创世区块")
+
+	genesisCmd.Flags().StringVar(&address, "address", "", "创建创世区块")
 	rootCmd.AddCommand(genesisCmd)
 
 }

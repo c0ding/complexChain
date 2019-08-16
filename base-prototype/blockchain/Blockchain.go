@@ -79,7 +79,7 @@ func setG_Blockchain(bc *Blockchain) {
 	G_Blockchain = bc
 }
 
-func NewBlockchainWithGenesisBlock(txs []*Transaction) {
+func NewBlockchainWithGenesisBlock(address string) {
 	var (
 		db        *bolt.DB
 		err       error
@@ -101,8 +101,15 @@ func NewBlockchainWithGenesisBlock(txs []*Transaction) {
 		var (
 			bucket       *bolt.Bucket
 			err          error
-			genesisBlock = NewGenesisBlock(txs)
+
+			//genesisBlock = NewGenesisBlock(txs)
+
+			genesisTX = NewCoinbaseTransaction(address)
+
+			genesisBlock = NewGenesisBlock([]*Transaction{genesisTX })
 		)
+
+
 
 		if bucket = tx.Bucket([]byte(blockTableName)); bucket == nil {
 			if bucket, err = tx.CreateBucket([]byte(blockTableName)); err != nil {
