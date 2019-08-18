@@ -37,6 +37,38 @@ func DBExists() bool {
 	return true
 }
 
+// 创建单例
+func setG_Blockchain(bc *Blockchain) {
+	G_Blockchain = bc
+}
+
+// 返回Blockchain对象
+func BlockchainObject() *Blockchain {
+
+	db, err := bolt.Open(dbName, 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var tip []byte
+
+	err = db.View(func(tx *bolt.Tx) error {
+
+		b := tx.Bucket([]byte(blockTableName))
+
+		if b != nil {
+			// 读取最新区块的Hash
+			tip = b.Get([]byte("l"))
+
+		}
+
+		return nil
+	})
+
+	setG_Blockchain(&Blockchain{tip, db})
+	return &Blockchain{tip, db}
+}
+
 func (b *Blockchain) Printchain() {
 
 	var (
@@ -74,11 +106,6 @@ func (b *Blockchain) Printchain() {
 
 }
 
-// 创建单例
-func setG_Blockchain(bc *Blockchain) {
-	G_Blockchain = bc
-}
-
 func NewBlockchainWithGenesisBlock(address string) {
 	var (
 		db        *bolt.DB
@@ -99,17 +126,15 @@ func NewBlockchainWithGenesisBlock(address string) {
 
 	if err = db.Update(func(tx *bolt.Tx) error {
 		var (
-			bucket       *bolt.Bucket
-			err          error
+			bucket *bolt.Bucket
+			err    error
 
 			//genesisBlock = NewGenesisBlock(txs)
 
 			genesisTX = NewCoinbaseTransaction(address)
 
-			genesisBlock = NewGenesisBlock([]*Transaction{genesisTX })
+			genesisBlock = NewGenesisBlock([]*Transaction{genesisTX})
 		)
-
-
 
 		if bucket = tx.Bucket([]byte(blockTableName)); bucket == nil {
 			if bucket, err = tx.CreateBucket([]byte(blockTableName)); err != nil {
@@ -186,29 +211,53 @@ func (b *Blockchain) AddBlock(txs []*Transaction) {
 
 }
 
-// 返回Blockchain对象
-func BlockchainObject() *Blockchain {
+// 挖掘新的区块
+func (blockchain *Blockchain) MineNewBlock(from []string, to []string, amount []string) {
 
-	db, err := bolt.Open(dbName, 0600, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//1. 通过相关算法建立Transaction数组
 
-	var tip []byte
+	var (
+		txs   []*Transaction
+		block *Block
+		err   error
+	)
 
-	err = db.View(func(tx *bolt.Tx) error {
+	if err = blockchain.DB.View(func(tx *bolt.Tx) error {
 
 		b := tx.Bucket([]byte(blockTableName))
-
 		if b != nil {
-			// 读取最新区块的Hash
-			tip = b.Get([]byte("l"))
+
+			hash := b.Get([]byte("l"))
+
+			blockBytes := b.Get(hash)
+
+			block = DeSerialize(blockBytes)
 
 		}
 
 		return nil
-	})
+	}); err != nil {
+		log.Panic(err)
+	}
 
-	setG_Blockchain(&Blockchain{tip, db})
-	return &Blockchain{tip, db}
+	//2. 建立新的区块
+	block = NewBlock(txs, block.Height+1, block.Hash)
+
+	//将新区块存储到数据库
+	if err = blockchain.DB.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blockTableName))
+		if b != nil {
+
+			b.Put(block.Hash, block.Serialize())
+
+			b.Put([]byte("l"), block.Hash)
+
+			blockchain.Tip = block.Hash
+
+		}
+		return nil
+	}); err != nil {
+
+	}
+
 }
