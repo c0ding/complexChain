@@ -2,7 +2,9 @@ package blockchain
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
+	"fmt"
 	"log"
 	"time"
 )
@@ -13,7 +15,7 @@ type Block struct {
 	//上一个区块hash
 	PreBlockHash []byte
 	//交易数据
-	Data []byte
+	Txs []*Transaction
 	//时间戳
 	TimeStamp int64
 	//本区块的hash
@@ -22,7 +24,22 @@ type Block struct {
 	Nonce int64
 }
 
-func NewBlock(data string, height int64, preBlockHash []byte) *Block {
+// 需要将Txs转换成[]byte
+func (block *Block) HashTransactions() []byte {
+
+	var txHashes [][]byte
+	var txHash [32]byte
+
+	for _, tx := range block.Txs {
+		txHashes = append(txHashes, tx.TxHash)
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+
+	return txHash[:]
+
+}
+
+func NewBlock(txs []*Transaction, height int64, preBlockHash []byte) *Block {
 
 	var (
 		timestamp int64
@@ -32,7 +49,7 @@ func NewBlock(data string, height int64, preBlockHash []byte) *Block {
 	)
 	timestamp = time.Now().Unix()
 	block := &Block{
-		Data:         []byte(data),
+		Txs:          txs,
 		Height:       height,
 		PreBlockHash: preBlockHash,
 		TimeStamp:    timestamp,
@@ -45,11 +62,12 @@ func NewBlock(data string, height int64, preBlockHash []byte) *Block {
 	hash, nonce = pow.Run()
 	block.Hash = hash[:]
 	block.Nonce = nonce
+	fmt.Println()
 	return block
 }
 
-func NewGenesisBlock(data string) *Block {
-	return NewBlock(data, 1, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+func NewGenesisBlock(txs []*Transaction) *Block {
+	return NewBlock(txs, 1, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func (b *Block) Serialize() []byte {
@@ -74,10 +92,11 @@ func DeSerialize(blockBytes []byte) *Block {
 		decoder *gob.Decoder
 		err     error
 	)
-
 	decoder = gob.NewDecoder(bytes.NewReader(blockBytes))
 	if err = decoder.Decode(&block); err != nil {
+
 		log.Panic(err)
+
 	}
 	return &block
 }

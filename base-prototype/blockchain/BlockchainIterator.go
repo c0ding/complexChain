@@ -1,4 +1,4 @@
-package BLC
+package blockchain
 
 import (
 	"github.com/boltdb/bolt"
@@ -7,33 +7,37 @@ import (
 
 type BlockchainIterator struct {
 	CurrentHash []byte
-	DB  *bolt.DB
+	DB          *bolt.DB
 }
 
 func (blockchainIterator *BlockchainIterator) Next() *Block {
 
-	var block *Block
+	var (
+		block *Block
+		err   error
+	)
 
-	err := blockchainIterator.DB.View(func(tx *bolt.Tx) error{
+	if err = blockchainIterator.DB.View(func(tx *bolt.Tx) error {
 
-		b := tx.Bucket([]byte(blockTableName))
+		var (
+			bucket *bolt.Bucket
+		)
 
-		if b != nil {
-			currentBloclBytes := b.Get(blockchainIterator.CurrentHash)
+		bucket = tx.Bucket([]byte(blockTableName))
+
+		if bucket != nil {
+			currentBloclBytes := bucket.Get(blockchainIterator.CurrentHash)
 			//  获取到当前迭代器里面的currentHash所对应的区块
-			block = DeserializeBlock(currentBloclBytes)
+			block = DeSerialize(currentBloclBytes)
 
 			// 更新迭代器里面CurrentHash
-			blockchainIterator.CurrentHash = block.PrevBlockHash
+			blockchainIterator.CurrentHash = block.PreBlockHash
 		}
 
 		return nil
-	})
-
-	if err != nil {
+	}); err != nil {
 		log.Panic(err)
 	}
-
 
 	return block
 
