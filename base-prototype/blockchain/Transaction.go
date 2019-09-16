@@ -79,6 +79,7 @@ func NewSimpleTransaction(from string, to string, amount int) *Transaction {
 	unSpentTx := UnSpentTransationsWithAdress(from)
 
 	fmt.Println(unSpentTx)
+	return nil
 
 	//// 通过一个函数，返回
 	////money,dic :=
@@ -111,6 +112,6 @@ func NewSimpleTransaction(from string, to string, amount int) *Transaction {
 	////设置hash值
 	//tx.HashTransaction()
 
-	return nil
+	// return nil
 
 }
